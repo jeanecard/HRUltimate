@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Service.Contracts
+namespace Shared.DataTransferObjects
 {
-    internal class Class1
-    {
-    }
+    public record CompanyDto(Guid Id, string Name, string FullAddress);
 }
