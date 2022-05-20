@@ -1,10 +1,6 @@
 ﻿using Contracts;
+using Entities.Exceptions;
 using Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -12,6 +8,25 @@ namespace Repository
     {
         public EmployeeRepository(RepositoryContext repositoryContext) : base(repositoryContext)
         {
+        }
+
+        public IEnumerable<Employee> GetAllEmployees(Guid companyId, bool trackChanges)
+        {
+            var result = this.FindByCondition(item => item.CompanyId == companyId, trackChanges);
+            return result;
+        }
+
+        public Employee GetEmployee(Guid companyId, Guid employeeId, bool trackChanges)
+        {
+            var result = this.FindByCondition(item => item.Id == employeeId && item.CompanyId == companyId, trackChanges);
+            if(result == null || result.Count() == 0)
+            {
+                throw new EmployeeNotFoundException(employeeId);
+            }
+            else
+            {
+                return result.SingleOrDefault();
+            }
         }
     }
 }

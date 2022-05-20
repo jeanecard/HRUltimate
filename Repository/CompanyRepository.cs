@@ -14,9 +14,20 @@ namespace Repository
         {
         }
 
+        public void CreateCompany(Company companyEntite)
+        {
+            this.Create(companyEntite);
+        }
+
         public IEnumerable<Company> GetAllCompanies(bool trackChanges)
         {
             return this.FindAll(trackChanges).OrderBy(item => item.Name);
+        }
+
+        public Company GetCompany(Guid companyId, bool trackChanges)
+        {
+            var retour = this.FindByCondition(item => item.Id == companyId, trackChanges);
+            return retour?.SingleOrDefault();
         }
     }
 }

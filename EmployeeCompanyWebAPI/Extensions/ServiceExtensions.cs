@@ -1,5 +1,6 @@
 ﻿
 using Contracts;
+using EmployeeCompanyWebAPI.Formatter;
 using LoggerService;
 using Microsoft.EntityFrameworkCore;
 using Repository;
@@ -35,6 +36,10 @@ namespace EmployeeCompanyWebAPI.Extensions
 
         public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>
         services.AddDbContext<RepositoryContext>(opts => opts.UseNpgsql(configuration.GetConnectionString("sqlConnection")));
+
+        public static IMvcBuilder AddCustomCSVFormatter(this IMvcBuilder builder) =>
+        builder.AddMvcOptions(config => config.OutputFormatters.Add(new
+        HRFormatter()));
 
     }
 }

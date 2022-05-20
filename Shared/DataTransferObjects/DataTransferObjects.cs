@@ -6,5 +6,13 @@ using System.Threading.Tasks;
 
 namespace Shared.DataTransferObjects
 {
-    public record CompanyDto(Guid Id, string Name, string FullAddress);
+    public record CompanyDto
+    {
+        public Guid Id { get; init; }
+        public String Name { get; init; }
+        public String FullAddress { get; init; }
+    }
+    public record CompanyForCreationDto(string Name, string Address, string Country);
+
+    public record EmployeeDto(Guid Id, string Name, int Age, String Position, Guid CompanyId);
 }
