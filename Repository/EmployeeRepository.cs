@@ -10,6 +10,11 @@ namespace Repository
         {
         }
 
+        public void CreateEmployee(Employee raw)
+        {
+            this.Create(raw);
+        }
+
         public IEnumerable<Employee> GetAllEmployees(Guid companyId, bool trackChanges)
         {
             var result = this.FindByCondition(item => item.CompanyId == companyId, trackChanges);
