@@ -24,6 +24,12 @@ namespace Repository
             return this.FindAll(trackChanges).OrderBy(item => item.Name);
         }
 
+        public IEnumerable<Company> GetByIds(IEnumerable<Guid> ids, bool trackChanges)
+        {
+            var retour = this.FindByCondition(item => ids.Contains(item.Id), trackChanges);
+            return retour;
+        }
+
         public Company GetCompany(Guid companyId, bool trackChanges)
         {
             var retour = this.FindByCondition(item => item.Id == companyId, trackChanges);

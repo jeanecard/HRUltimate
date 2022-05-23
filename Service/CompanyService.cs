@@ -37,6 +37,21 @@ namespace Service
             return _mapper.Map<CompanyDto>(companyResult);
         }
 
+        public IEnumerable<CompanyDto> GetByIds(IEnumerable<Guid> ids, bool trackChanges)
+        {
+            if(ids == null)
+            {
+                throw new IdParametersBadRequestException();
+            }
+            var raws = _repository.Company.GetByIds(ids, trackChanges);
+            if(raws.Count() == ids.Count())
+            {
+                throw new CollectionByIdsBadRequestException();
+
+            }
+            return _mapper.Map<IEnumerable<CompanyDto>>(raws);
+        }
+
         public IEnumerable<CompanyDto> GetCompanies()
         {
             var raws = _repository.Company.GetAllCompanies(false);
