@@ -30,7 +30,7 @@ namespace Repository
             }
             else
             {
-                return result.SingleOrDefault();
+                return result?.SingleOrDefault();
             }
         }
     }
