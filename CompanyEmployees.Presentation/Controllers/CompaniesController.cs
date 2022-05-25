@@ -55,11 +55,28 @@ namespace CompanyEmployees.Presentation.Controllers
             if(company == null)
             {
                 return BadRequest("CompanyForCreationDto object is null");
-
             }
             var companyResult = _mngService.CompanyService.CreateCompany(company);
             return CreatedAtRoute(COMPANY_BY_ID_ROUTE, new { id = companyResult.Id }, companyResult);
         }
 
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteCompany(Guid id)
+        {
+            _mngService.CompanyService.DeleteCompany(id, trackChanges: false);
+            return NoContent();
+        }
+
+        [HttpPut("{id:guid}")]
+        public IActionResult UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto company)
+        {
+            if (company == null)
+            {
+                return BadRequest("CompanyForUpdateDto object is null");
+            }
+
+            _mngService.CompanyService.UpdateCompany(id, company, trackChanges: true);
+            return NoContent();
+        }
     }
 }

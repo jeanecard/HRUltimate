@@ -19,6 +19,11 @@ namespace Repository
             this.Create(companyEntite);
         }
 
+        public void DeleteCompany(Company companyEntite)
+        {
+            this.Delete(companyEntite);
+        }
+
         public IEnumerable<Company> GetAllCompanies(bool trackChanges)
         {
             return this.FindAll(trackChanges).OrderBy(item => item.Name);

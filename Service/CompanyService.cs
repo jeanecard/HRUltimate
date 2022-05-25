@@ -63,6 +63,17 @@ namespace Service
             return (companies : retourCompanies, ids : ids);
         }
 
+        public void DeleteCompany(Guid companyId, bool trackChanges)
+        {
+            var company = _repository.Company.GetCompany(companyId, trackChanges);    
+            if(company == null)
+            {
+                throw new CompanyNotFoundException(companyId);
+            }
+            _repository.Company.DeleteCompany(company);
+            _repository.Save();
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -112,5 +123,16 @@ namespace Service
             return _mapper.Map<CompanyDto>(raw);
         }
 
+        public void UpdateCompany(Guid id, CompanyForUpdateDto company, bool trackChanges)
+        {
+            var raw = _repository.Company.GetCompany(id, trackChanges);
+
+            if (raw is null)
+                throw new CompanyNotFoundException(id);
+
+            _mapper.Map(company, raw);
+            _repository.Save();
+
+        }
     }
 }

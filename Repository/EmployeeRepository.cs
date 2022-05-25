@@ -15,6 +15,11 @@ namespace Repository
             this.Create(raw);
         }
 
+        public void DeleteEmployee(Employee raw)
+        {
+            this.Delete(raw);   
+        }
+
         public IEnumerable<Employee> GetAllEmployees(Guid companyId, bool trackChanges)
         {
             var result = this.FindByCondition(item => item.CompanyId == companyId, trackChanges);

@@ -42,6 +42,23 @@ namespace Service
             return _mapper.Map<EmployeeDto>(createdRaw);    
         }
 
+        public void DeleteEmployeeForCompany(Guid companyId, Guid emloyeeId, bool trackChanges)
+        {
+            var company = _repo.Company.GetCompany(companyId, trackChanges);
+
+            if (company == null)
+            {
+                throw new CompanyNotFoundException(companyId);
+            }
+            var employee = _repo.Employee.GetEmployee(companyId, emloyeeId, trackChanges);
+            if(employee == null)
+            {
+                throw new EmployeeNotFoundException(emloyeeId);
+            }
+            _repo.Employee.DeleteEmployee(employee);
+            _repo.Save();
+        }
+
         public IEnumerable<EmployeeDto> GetAllEmployeesOf(Guid companyId, bool trackChanges)
         {
             var result = _repo.Employee.GetAllEmployees(companyId, trackChanges);
@@ -59,6 +76,26 @@ namespace Service
             //2-
             var result = _repo.Employee.GetEmployee(companyId, employeeId, trackChanges);
             return _mapper.Map<EmployeeDto>(result);    
+        }
+
+        public void UpdateEmployeeForCompany(Guid companyId, Guid id, EmployeeForUpdateDto employee, bool compTrackChanges, bool empTrackChanges)
+        {
+            //1- Company 
+            var companyResult = _repo.Company.GetCompany(companyId, compTrackChanges);
+            if (companyResult == null)
+            {
+                throw new CompanyNotFoundException(companyId);
+            }
+            //2-
+            var employeeResult = _repo.Employee.GetEmployee(companyId, id, empTrackChanges);
+            if(employeeResult == null)
+            {
+                throw new EmployeeNotFoundException(id);
+            }
+            _mapper.Map(employee, employeeResult);
+            //3-
+            _repo.Save();
+
         }
     }
 }
