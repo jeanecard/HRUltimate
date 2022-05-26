@@ -1,5 +1,6 @@
 ﻿using CompanyEmployees.Presentation.ModelBinders;
 using Contracts;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -76,6 +77,20 @@ namespace CompanyEmployees.Presentation.Controllers
             }
 
             _mngService.CompanyService.UpdateCompany(id, company, trackChanges: true);
+            return NoContent();
+        }
+
+
+        [HttpPatch("{id:guid}")]
+        public IActionResult PartiallyUpdateCompany(Guid id, [FromBody] JsonPatchDocument<CompanyForPatchDto> patchDoc)
+        {
+            if (patchDoc is null)
+            {
+                return BadRequest("patchDoc object sent from client is null.");
+            }
+            var result = _mngService.CompanyService.GetCompanyForPatch(id, trackChanges: true);
+            patchDoc.ApplyTo(result.companyToPatch);
+            _mngService.CompanyService.SaveChangesForPatch(result.companyToPatch, result.company);
             return NoContent();
         }
     }

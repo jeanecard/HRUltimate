@@ -25,6 +25,14 @@ namespace Service
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyId"></param>
+        /// <param name="employee"></param>
+        /// <param name="trackChanges"></param>
+        /// <returns></returns>
+        /// <exception cref="CompanyNotFoundException"></exception>
         public EmployeeDto CreateEmployeeForCompany(Guid companyId, EmployeeForCreationDto employee, bool trackChanges)
         {
             var raw = _mapper.Map<Employee>(employee);
@@ -42,6 +50,14 @@ namespace Service
             return _mapper.Map<EmployeeDto>(createdRaw);    
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyId"></param>
+        /// <param name="emloyeeId"></param>
+        /// <param name="trackChanges"></param>
+        /// <exception cref="CompanyNotFoundException"></exception>
+        /// <exception cref="EmployeeNotFoundException"></exception>
         public void DeleteEmployeeForCompany(Guid companyId, Guid emloyeeId, bool trackChanges)
         {
             var company = _repo.Company.GetCompany(companyId, trackChanges);
@@ -59,6 +75,12 @@ namespace Service
             _repo.Save();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyId"></param>
+        /// <param name="trackChanges"></param>
+        /// <returns></returns>
         public IEnumerable<EmployeeDto> GetAllEmployeesOf(Guid companyId, bool trackChanges)
         {
             var result = _repo.Employee.GetAllEmployees(companyId, trackChanges);
@@ -78,6 +100,55 @@ namespace Service
             return _mapper.Map<EmployeeDto>(result);    
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyId"></param>
+        /// <param name="id"></param>
+        /// <param name="compTrackChanges"></param>
+        /// <param name="empTrackChanges"></param>
+        /// <returns></returns>
+        /// <exception cref="CompanyNotFoundException"></exception>
+        /// <exception cref="EmployeeNotFoundException"></exception>
+        public (EmployeeForPatchDto employeeToPatch,  Employee employee) GetEmployeeForPatch(Guid companyId, Guid id, bool compTrackChanges, bool empTrackChanges)
+        {
+            //1- Company 
+            var companyResult = _repo.Company.GetCompany(companyId, compTrackChanges);
+            if (companyResult == null)
+            {
+                throw new CompanyNotFoundException(companyId);
+            }
+            //2-
+            var employeeResult = _repo.Employee.GetEmployee(companyId, id, empTrackChanges);
+            if (employeeResult == null)
+            {
+                throw new EmployeeNotFoundException(id);
+            }
+            var employeeToPatch=  _mapper.Map<EmployeeForPatchDto>(employeeResult);
+            return (employeeToPatch, employeeResult);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="employeeToPatch"></param>
+        /// <param name="employee"></param>
+        public void SaveChangesForPatch(EmployeeForPatchDto employeeToPatch, Employee employee)
+        {
+            _mapper.Map(employeeToPatch, employee);
+            _repo.Save();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyId"></param>
+        /// <param name="id"></param>
+        /// <param name="employee"></param>
+        /// <param name="compTrackChanges"></param>
+        /// <param name="empTrackChanges"></param>
+        /// <exception cref="CompanyNotFoundException"></exception>
+        /// <exception cref="EmployeeNotFoundException"></exception>
         public void UpdateEmployeeForCompany(Guid companyId, Guid id, EmployeeForUpdateDto employee, bool compTrackChanges, bool empTrackChanges)
         {
             //1- Company 

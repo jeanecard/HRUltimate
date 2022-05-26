@@ -123,6 +123,41 @@ namespace Service
             return _mapper.Map<CompanyDto>(raw);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="trackChanges"></param>
+        /// <returns></returns>
+        /// <exception cref="CompanyNotFoundException"></exception>
+        public (CompanyForPatchDto companyToPatch, Company company) GetCompanyForPatch(Guid id, bool trackChanges)
+        {
+            var raw = _repository.Company.GetCompany(id, trackChanges);
+
+            if (raw is null)
+                throw new CompanyNotFoundException(id);
+
+            return (_mapper.Map<CompanyForPatchDto>(raw), raw); 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyToPatch"></param>
+        /// <param name="company"></param>
+        public void SaveChangesForPatch(CompanyForPatchDto companyToPatch, Company company)
+        {
+            _mapper.Map(companyToPatch, company);
+            _repository.Save();
+        }
+
+        /// <summary>
+        ///  
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="company"></param>
+        /// <param name="trackChanges"></param>
+        /// <exception cref="CompanyNotFoundException"></exception>
         public void UpdateCompany(Guid id, CompanyForUpdateDto company, bool trackChanges)
         {
             var raw = _repository.Company.GetCompany(id, trackChanges);

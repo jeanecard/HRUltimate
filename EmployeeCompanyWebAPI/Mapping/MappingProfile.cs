@@ -17,11 +17,13 @@ namespace EmployeeCompanyWebAPI.Mapping
             //opt => opt.MapFrom(x => string.Join(' ', x.Address, x.Country)));
 
             CreateMap<Employee, EmployeeDto>();
-
-            CreateMap<CompanyForCreationDto, Company>();
             CreateMap<EmployeeForCreationDto, Employee>();
             CreateMap<EmployeeForUpdateDto, Employee>();
-            CreateMap<CompanyForUpdateDto, Company>();
+            CreateMap<EmployeeForPatchDto, Employee>().ReverseMap();
+
+            CreateMap<CompanyForCreationDto, Company>();
+            CreateMap<CompanyForUpdateDto, Company>().ReverseMap();
+            CreateMap<CompanyForPatchDto, Company>().ReverseMap();
         }
     }
 }
