@@ -1,4 +1,5 @@
-﻿using CompanyEmployees.Presentation.ModelBinders;
+﻿using CompanyEmployees.Presentation.ActionFilters;
+using CompanyEmployees.Presentation.ModelBinders;
 using Contracts;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -12,75 +13,120 @@ namespace CompanyEmployees.Presentation.Controllers
     public class CompaniesController : ControllerBase
     {
         private readonly IServiceManager _mngService;
-        private readonly ILoggerManager _logger;
         public const String COMPANY_COLLECTION_ROUTE = "CompanyCollection";
         public const String COMPANY_BY_ID_ROUTE = "CompanyById";
-        public CompaniesController(IServiceManager mng, ILoggerManager log)
+        public CompaniesController(IServiceManager mng)
         {
             _mngService = mng;
-            _logger = log;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         //public ActionResult<IEnumerable<Company>> Get()
         {
-            var retour = _mngService.CompanyService.GetCompanies();
+            var retour = await _mngService.CompanyService.GetAllCompaniesAsync(false);
             return Ok(retour);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
         [HttpGet("collection/({ids})", Name = COMPANY_COLLECTION_ROUTE)]
-        public IActionResult GetCompanyCollection([ModelBinder(BinderType =typeof(ArrayModelBinder))]IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
-            var companies = _mngService.CompanyService.GetByIds(ids, trackChanges: false);
+            var companies = await _mngService.CompanyService.GetByIdsAsync(ids, trackChanges: false);
             return Ok(companies);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id:guid}", Name = COMPANY_BY_ID_ROUTE)]
-        public IActionResult GetCompany(Guid id)
+        public async Task<IActionResult> GetCompany(Guid id)
         {
-            var company = _mngService.CompanyService.GetCompany(id);
+            var company = await _mngService.CompanyService.GetCompanyAsync(id, false);
             return Ok(company);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyCollection"></param>
+        /// <returns></returns>
         [HttpPost("collection")]
-        public IActionResult CreateCompanyCollection([FromBody]IEnumerable<CompanyForCreationDto> companyCollection)
+        public async Task<IActionResult> CreateCompanyCollection([FromBody] IEnumerable<CompanyForCreationDto> companyCollection)
         {
-            var result = _mngService.CompanyService.CreateCompanyCollection(companyCollection);
+            var result = await _mngService.CompanyService.CreateCompanyCollectionAsync(companyCollection);
             return CreatedAtRoute(COMPANY_COLLECTION_ROUTE, new { ids = result.ids }, result.companies);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="company"></param>
+        /// <returns></returns>
         [HttpPost]
-        public IActionResult CreateCompany([FromBody]CompanyForCreationDto company)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {
-            if(company == null)
-            {
-                return BadRequest("CompanyForCreationDto object is null");
-            }
-            var companyResult = _mngService.CompanyService.CreateCompany(company);
+            //if (company == null)
+            //{
+            //    return BadRequest("CompanyForCreationDto object is null");
+            //}
+            //if (!ModelState.IsValid)
+            //{
+            //    return UnprocessableEntity(ModelState);
+            //}
+
+            var companyResult = await _mngService.CompanyService.CreateCompanyAsync(company);
             return CreatedAtRoute(COMPANY_BY_ID_ROUTE, new { id = companyResult.Id }, companyResult);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteCompany(Guid id)
+        public async Task<IActionResult> DeleteCompany(Guid id)
         {
-            _mngService.CompanyService.DeleteCompany(id, trackChanges: false);
+            await _mngService.CompanyService.DeleteCompanyAsync(id, trackChanges: false);
             return NoContent();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="company"></param>
+        /// <returns></returns>
         [HttpPut("{id:guid}")]
-        public IActionResult UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto company)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto company)
         {
-            if (company == null)
-            {
-                return BadRequest("CompanyForUpdateDto object is null");
-            }
+            //if (company == null)
+            //{
+            //    return BadRequest("CompanyForUpdateDto object is null");
+            //}
+            //if (!ModelState.IsValid)
+            //{
+            //    return UnprocessableEntity(ModelState);
+            //}
 
-            _mngService.CompanyService.UpdateCompany(id, company, trackChanges: true);
+            await _mngService.CompanyService.UpdateCompanyAsync(id, company, trackChanges: true);
             return NoContent();
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="patchDoc"></param>
+        /// <returns></returns>
         [HttpPatch("{id:guid}")]
         public IActionResult PartiallyUpdateCompany(Guid id, [FromBody] JsonPatchDocument<CompanyForPatchDto> patchDoc)
         {
@@ -89,7 +135,13 @@ namespace CompanyEmployees.Presentation.Controllers
                 return BadRequest("patchDoc object sent from client is null.");
             }
             var result = _mngService.CompanyService.GetCompanyForPatch(id, trackChanges: true);
-            patchDoc.ApplyTo(result.companyToPatch);
+            patchDoc.ApplyTo(result.companyToPatch, ModelState);
+
+            TryValidateModel(result.companyToPatch);
+
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             _mngService.CompanyService.SaveChangesForPatch(result.companyToPatch, result.company);
             return NoContent();
         }

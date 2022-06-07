@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Repository;
 using Service;
 using Service.Contracts;
+using Service.DataShaping;
+using Shared.DataTransferObjects;
 
 namespace EmployeeCompanyWebAPI.Extensions
 {
@@ -17,7 +19,8 @@ namespace EmployeeCompanyWebAPI.Extensions
                  options.AddPolicy("CorsPolicy", builder =>
                  builder.AllowAnyOrigin()
                  .AllowAnyMethod()
-                 .AllowAnyHeader());
+                 .AllowAnyHeader()
+                 .WithExposedHeaders("X-Pagination"));
              });
 
         public static void ConfigureIISIntegration(this IServiceCollection services) =>
@@ -34,12 +37,19 @@ namespace EmployeeCompanyWebAPI.Extensions
         public static void ConfigureServiceManager(this IServiceCollection services) => 
             services.AddScoped<IServiceManager, ServiceManager>();
 
+        public static void ConfigureDataShaping(this IServiceCollection services) =>
+            services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
+
         public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>
         services.AddDbContext<RepositoryContext>(opts => opts.UseNpgsql(configuration.GetConnectionString("sqlConnection")));
 
         public static IMvcBuilder AddCustomCSVFormatter(this IMvcBuilder builder) =>
         builder.AddMvcOptions(config => config.OutputFormatters.Add(new
         HRFormatter()));
+
+
+
+        
 
     }
 }
