@@ -7,6 +7,7 @@ using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -92,16 +93,33 @@ namespace Service
         /// <param name="companyId"></param>
         /// <param name="trackChanges"></param>
         /// <returns></returns>
-        public async Task<PagedList<EmployeeDto>> GetAllEmployeesOfAsync(Guid companyId, EmployeeParameters parameters, bool trackChanges)
+        public async Task<PagedList<Entity>> GetAllEmployeesOfAsync(Guid companyId, EmployeeParameters parameters, bool trackChanges)
         {
-            if(!parameters.ValidAgeRange)
+            //if (!parameters.ValidAgeRange)
+            //    throw new BadRangeException();
+
+            //await CheckIfCompanyExistsAsync(companyId, trackChanges);
+
+            //var employeesWithMetaData = await _repo.Employee
+            //    .GetEmployeesAsync(companyId, parameters, trackChanges);
+
+            //var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesWithMetaData);
+            //var shapedData = _dataShaper.ShapeData(employeesDto, parameters.Fields);
+
+            //return (employees: shapedData, metaData: employeesWithMetaData.MetaData);
+
+
+
+            if (!parameters.ValidAgeRange)
             {
                 throw new BadRangeException();
             }
+            await CheckIfCompanyExistsAsync(companyId, trackChanges);
             var resultIntermediaire = await _repo.Employee.GetEmployeesAsync(companyId, parameters, trackChanges);
             var resultItems = _mapper.Map<IList<EmployeeDto>>(resultIntermediaire);
-            return new PagedList<EmployeeDto>(
-                resultItems.ToList(),
+            var shapedItems = _dataShaper.ShapeData(resultItems, parameters?.Fields);
+            return new PagedList<Entity>(
+                shapedItems.Select(item => item.Entity).ToList(),
                 resultIntermediaire.MetaData.TotalCount,
                 resultIntermediaire.MetaData.CurrentPage,
                 resultIntermediaire.MetaData.PageSize);

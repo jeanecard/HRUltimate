@@ -20,7 +20,9 @@ namespace CompanyEmployees.Presentation.Controllers
             _mngService = mng;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetEmployeesForCompany")]
+        [HttpHead]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             var employees = await _mngService.EmployeeService.GetAllEmployeesOfAsync(companyId, employeeParameters, trackChanges: false);
@@ -65,7 +67,7 @@ namespace CompanyEmployees.Presentation.Controllers
         /// <param name="companyId"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("{id:guid}", Name = "DeleteEmployeeForCompany")]
         public IActionResult DeleteEmployeeForCompany(Guid companyId, Guid id)
         {
             _mngService.EmployeeService.DeleteEmployeeForCompany(companyId, id, trackChanges: false);
@@ -78,7 +80,7 @@ namespace CompanyEmployees.Presentation.Controllers
         /// <param name="id"></param>
         /// <param name="employee"></param>
         /// <returns></returns>
-        [HttpPut("{id:guid}")]
+        [HttpPut("{id:guid}", Name = "UpdateEmployeeForCompany")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult UpdateEmployee(Guid companyId, Guid id, [FromBody] EmployeeForUpdateDto employee)
         {
@@ -99,7 +101,7 @@ namespace CompanyEmployees.Presentation.Controllers
         /// <param name="id"></param>
         /// <param name="patchDoc"></param>
         /// <returns></returns>
-        [HttpPatch("{id:guid}")]
+        [HttpPatch("{id:guid}", Name = "PartiallyUpdateEmployeeForCompany")]
         public IActionResult PartiallyUpdateEmployeeForCompany(Guid companyId, Guid id, [FromBody] JsonPatchDocument<EmployeeForPatchDto> patchDoc)
         {
             if (patchDoc is null)

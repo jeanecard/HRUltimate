@@ -8,6 +8,7 @@ using Shared.DataTransferObjects;
 
 namespace CompanyEmployees.Presentation.Controllers
 {
+    [ApiVersion("1.0")]
     [Route("api/companies")]
     [ApiController]
     public class CompaniesController : ControllerBase
@@ -23,8 +24,8 @@ namespace CompanyEmployees.Presentation.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [HttpGet(Name = "GetCompanies")]
+        public async Task<IActionResult> GetCompanies()
         //public ActionResult<IEnumerable<Company>> Get()
         {
             var retour = await _mngService.CompanyService.GetAllCompaniesAsync(false);
@@ -47,6 +48,7 @@ namespace CompanyEmployees.Presentation.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id:guid}", Name = COMPANY_BY_ID_ROUTE)]
+        [ResponseCache(Duration = 60)]
         public async Task<IActionResult> GetCompany(Guid id)
         {
             var company = await _mngService.CompanyService.GetCompanyAsync(id, false);
@@ -69,7 +71,7 @@ namespace CompanyEmployees.Presentation.Controllers
         /// </summary>
         /// <param name="company"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost(Name = "CreateCompany")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {
@@ -144,6 +146,13 @@ namespace CompanyEmployees.Presentation.Controllers
 
             _mngService.CompanyService.SaveChangesForPatch(result.companyToPatch, result.company);
             return NoContent();
+        }
+
+        [HttpOptions]
+        public IActionResult GetCompaniesOptions()
+        {
+            Response.Headers.Add("Allow", "GET, OPTIONS, POST ,PATCH, PUT, SAUCISSE");
+            return Ok();
         }
     }
 }
