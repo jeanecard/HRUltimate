@@ -2,6 +2,7 @@
 using Contracts;
 using EmployeeCompanyWebAPI.Formatter;
 using LoggerService;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,7 @@ namespace EmployeeCompanyWebAPI.Extensions
         public static void ConfigureRepositoryManager(this IServiceCollection services) =>
             services.AddScoped<IRepositoryManager, RepositoryManager>();
 
-        public static void ConfigureServiceManager(this IServiceCollection services) => 
+        public static void ConfigureServiceManager(this IServiceCollection services) =>
             services.AddScoped<IServiceManager, ServiceManager>();
 
         public static void ConfigureDataShaping(this IServiceCollection services) =>
@@ -91,5 +92,15 @@ namespace EmployeeCompanyWebAPI.Extensions
             services.AddResponseCaching();
         }
 
+        public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
+            services.AddHttpCacheHeaders((expirationOpt) =>
+            {
+                expirationOpt.MaxAge = 65;
+                expirationOpt.CacheLocation = CacheLocation.Private;
+            },
+             (validationOpt) =>
+             {
+                 validationOpt.MustRevalidate = true;
+             });
     }
 }

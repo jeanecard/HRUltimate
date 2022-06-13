@@ -5,6 +5,7 @@ using EmployeeCompanyWebAPI.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.ConfigureDataShaping();
 builder.Services.ConfigureVersioning();
 builder.Services.ConfigureResponseCaching();
+builder.Services.ConfigureHttpCacheHeaders();
 
 
 //Extra services
@@ -38,6 +40,12 @@ builder.Services.AddControllers(config => {
     config.RespectBrowserAcceptHeader = true;
     config.ReturnHttpNotAcceptable = true;
     config.InputFormatters.Insert(0, JsonPatchInputFormatter.Get());
+    config.CacheProfiles.Add(
+        Constants.DURATION_CACHE_NAME, 
+        new CacheProfile
+        {
+            Duration = 120
+        });
 }).AddXmlDataContractSerializerFormatters()
 .AddCustomCSVFormatter()
 .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
@@ -60,7 +68,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 app.UseCors("CorsPolicy");
 app.UseResponseCaching();
-
+app.UseHttpCacheHeaders();
 
 app.UseAuthorization();
 
