@@ -1,11 +1,10 @@
 ﻿using CompanyEmployees.Presentation.ActionFilters;
 using CompanyEmployees.Presentation.ModelBinders;
-using Contracts;
 using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
-using Shared;
 using Shared.DataTransferObjects;
 
 namespace CompanyEmployees.Presentation.Controllers
@@ -29,6 +28,8 @@ namespace CompanyEmployees.Presentation.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet(Name = "GetCompanies")]
+        [Authorize]
+
         public async Task<IActionResult> GetCompanies()
         //public ActionResult<IEnumerable<Company>> Get()
         {
