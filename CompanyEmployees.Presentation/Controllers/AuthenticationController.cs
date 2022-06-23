@@ -1,7 +1,4 @@
 ﻿using CompanyEmployees.Presentation.ActionFilters;
-using CompanyEmployees.Presentation.ModelBinders;
-using Marvin.Cache.Headers;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;

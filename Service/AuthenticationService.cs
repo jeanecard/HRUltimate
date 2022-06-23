@@ -35,10 +35,6 @@ namespace Service
             _mapper = mapper;
             _userManager = userManager;
             _jwtConfig = config.Value;
-            //_configuration = configuration;
-            _jwtConfig = new JwtConfiguration();
-            //var jwtSettings = configuration.GetSection("JwtSettings");
-            //configuration.Bind(_jwtConfig.Section, _jwtConfig);
         }
         /// <summary>
         /// 

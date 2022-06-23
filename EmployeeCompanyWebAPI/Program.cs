@@ -4,9 +4,11 @@ using Contracts;
 using EmployeeCompanyWebAPI;
 using EmployeeCompanyWebAPI.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using Shared;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,17 @@ builder.Services.AddHttpContextAccessor();
 //AuthN
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
+
+//The AddIdentity method configures default scheme settings. But the AddAuthentication allows configuring different authentication options, like Google for example. That’s why this method must be placed below the AddIdentity method.
+//builder.Services.AddAuthentication()
+//    .AddGoogle("google", opt =>
+//    {
+//        var googleAuth = builder.Configuration.GetSection("Authentication:Google");
+//        opt.ClientId = googleAuth["ClientId"];
+//        opt.ClientSecret = googleAuth["ClientSecret"];
+//        opt.SignInScheme = IdentityConstants.ExternalScheme;
+//    });
+
 builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.AddJwtConfiguration(builder.Configuration);
 
