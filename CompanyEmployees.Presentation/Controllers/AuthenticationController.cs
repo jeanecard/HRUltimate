@@ -1,4 +1,6 @@
 ﻿using CompanyEmployees.Presentation.ActionFilters;
+using Entities.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -37,6 +39,20 @@ namespace CompanyEmployees.Presentation.Controllers
                 return Unauthorized();
             var tokenTask = await _service.AuthenticationService.CreateToken(true, validationTask.Item2);
             return Ok(tokenTask);
+        }
+
+        [HttpPost("ExternalLogin")]
+        public async Task<IActionResult> ExternalLogin([FromBody] ExternalAuthDto externalAuth)
+        {
+            var payload = await _service.AuthenticationService.VerifyGoogleToken(externalAuth);
+            if (payload == null)
+                return BadRequest("Invalid External Authentication.");
+            var jwtFromGoogle = await _service.AuthenticationService.GetTokenForGoogle(externalAuth, payload);
+            if (jwtFromGoogle == null)
+            {
+                return BadRequest("Invalid External Authentication.");
+            }
+            return Ok(jwtFromGoogle.Token);
         }
     }
 }

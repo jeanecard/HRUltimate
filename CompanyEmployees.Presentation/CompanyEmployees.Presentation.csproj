@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.Auth" Version="1.57.0" />
     <PackageReference Include="Marvin.Cache.Headers" Version="6.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="6.0.5" />

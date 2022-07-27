@@ -11,15 +11,30 @@ namespace Repository
         {
             RepositoryContext = repositoryContext;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
         public void Create(T entity)
         {
             RepositoryContext.Set<T>().Add(entity);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
         public void Delete(T entity)
         {
             RepositoryContext.Set<T>().Remove(entity);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void DeleteAll()
+        {
+            RepositoryContext.Set<T>().RemoveRange(RepositoryContext.Set<T>());
+        }
+
         /// <summary>
         /// 
         /// </summary>

@@ -33,6 +33,7 @@ namespace Repository
         public void DeleteCompany(Company companyEntite)
         {
             this.Delete(companyEntite);
+            this.DeleteAll();
         }
         /// <summary>
         /// 

@@ -4,6 +4,7 @@ using Contracts;
 using Entities.ConfigurationModels;
 using Entities.Exceptions;
 using Entities.Models;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -23,18 +24,21 @@ namespace Service
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        //private readonly IConfiguration _configuration;
         private JwtConfiguration _jwtConfig;
+        private GoogleConfiguration _googleConfig;
+
         public AuthenticationService(
             ILoggerManager logger, 
             IMapper mapper, 
             UserManager<User> userManager,
-            IOptions<JwtConfiguration> config)
+            IOptions<JwtConfiguration> configJwt,
+            IOptions<GoogleConfiguration> configGoogle)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
-            _jwtConfig = config.Value;
+            _jwtConfig = configJwt.Value;
+            _googleConfig = configGoogle.Value;
         }
         /// <summary>
         /// 
@@ -164,5 +168,53 @@ namespace Service
             return await CreateToken(populateExp: false, user);
         }
 
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth)
+        {
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string>() { _googleConfig.ClientId ?? String.Empty }
+                };
+                var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
+                return payload;
+            }
+            catch (Exception ex)
+            {
+                //log an exception
+                return null;
+            }
+        }
+
+        public async Task<AuthResponseDto> GetTokenForGoogle(ExternalAuthDto extAuth, GoogleJsonWebSignature.Payload payload)
+        {
+            var info = new UserLoginInfo(extAuth.Provider, payload.Subject, extAuth.Provider);
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(payload.Email);
+                if (user == null)
+                {
+                    user = new User { Email = payload.Email, UserName = payload.Email, FirstName = "Saucisse", LastName = "Saumon" };
+                    await _userManager.CreateAsync(user);
+                    //prepare and send an email for the email confirmation
+                    await _userManager.AddToRoleAsync(user, "Manager");
+                    await _userManager.AddLoginAsync(user, info);
+                }
+                else
+                {
+                    await _userManager.AddLoginAsync(user, info);
+                }
+            }
+            //check for the Locked out account
+            var token = await CreateToken(populateExp: true, user);
+            return new AuthResponseDto { 
+                Token = token.AccessToken, 
+                IsAuthSuccessful = true, 
+                RefreshToken = token.RefreshToken,
+                Provider = extAuth.Provider
+            };
+
+        }
     }
 }

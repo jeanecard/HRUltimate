@@ -9,7 +9,7 @@ namespace Entities.ConfigurationModels
 {
     public class JwtConfiguration
     {
-        public string Section { get; set; } = Constants.SETTINGS_JWT_KEY;
+        public static string Section { get; } = Constants.SETTINGS_JWT_KEY;
         public string? ValidIssuer { get; set; }
         public string? ValidAudience { get; set; }
         public string? Expires { get; set; }

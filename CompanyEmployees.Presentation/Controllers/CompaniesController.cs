@@ -28,7 +28,7 @@ namespace CompanyEmployees.Presentation.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet(Name = "GetCompanies")]
-        [Authorize]
+        //[Authorize]
 
         public async Task<IActionResult> GetCompanies()
         //public ActionResult<IEnumerable<Company>> Get()

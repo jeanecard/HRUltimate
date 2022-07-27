@@ -34,18 +34,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 
-//The AddIdentity method configures default scheme settings. But the AddAuthentication allows configuring different authentication options, like Google for example. That’s why this method must be placed below the AddIdentity method.
-//builder.Services.AddAuthentication()
-//    .AddGoogle("google", opt =>
-//    {
-//        var googleAuth = builder.Configuration.GetSection("Authentication:Google");
-//        opt.ClientId = googleAuth["ClientId"];
-//        opt.ClientSecret = googleAuth["ClientSecret"];
-//        opt.SignInScheme = IdentityConstants.ExternalScheme;
-//    });
-
+//Classical Identity AuthN
 builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.AddJwtConfiguration(builder.Configuration);
+
+
+//Google AuthN support in Identity
+builder.Services.AddGoogleConfiguration(builder.Configuration);
 
 
 

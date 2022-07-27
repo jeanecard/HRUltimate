@@ -28,12 +28,13 @@ namespace Service
             IMapper mapper, 
             IDataShaper<EmployeeDto> dataShaper,
             UserManager<User> userManager,
-            IOptions<JwtConfiguration> configuration)
+            IOptions<JwtConfiguration> configJWT,
+            IOptions<GoogleConfiguration> configGoogle)
             //IConfiguration conf)
         {
             _companyService = new Lazy<ICompanyService>(() => new CompanyService(repo, logger, mapper));
             _employeeService = new Lazy<IEmployeeService>(() => new EmployeeService(repo, logger, mapper, dataShaper));
-            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configJWT, configGoogle));
         }
 
         public ICompanyService CompanyService => _companyService.Value;

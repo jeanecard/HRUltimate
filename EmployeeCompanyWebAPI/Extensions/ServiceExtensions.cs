@@ -150,7 +150,7 @@ namespace EmployeeCompanyWebAPI.Extensions
         {
             var jwtModel = new JwtConfiguration();
             //var jwtSettings = configuration.GetSection("JwtSettings");
-            configuration.Bind(jwtModel.Section, jwtModel);
+            configuration.Bind(JwtConfiguration.Section, jwtModel);
             var secretKey = Environment.GetEnvironmentVariable("SECRET");
             services.AddAuthentication(opt =>
             {
@@ -172,7 +172,11 @@ namespace EmployeeCompanyWebAPI.Extensions
             });
         }
         public static void AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration) =>
-            services.Configure<JwtConfiguration>(configuration.GetSection("JwtSettings"));
+            services.Configure<JwtConfiguration>(configuration.GetSection(JwtConfiguration.Section));
+
+        public static void AddGoogleConfiguration(this IServiceCollection services,IConfiguration configuration) =>
+            services.Configure<GoogleConfiguration>(configuration.GetSection(GoogleConfiguration.Section));
+
     }
 
 }
